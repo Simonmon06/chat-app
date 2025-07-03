@@ -88,9 +88,29 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   try {
-    res.cookie("JWT", "", { maxAge: 0 });
+    res.cookie("myJWT", "", { maxAge: 0 });
     res.status(200).json({
       message: "Logout successfully",
+    });
+  } catch (err) {
+    errorHandler(err, res);
+  }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      id: user.id,
+      fullName: user.fullName,
+      userName: user.username,
+      profilePic: user.profilePic,
     });
   } catch (err) {
     errorHandler(err, res);
