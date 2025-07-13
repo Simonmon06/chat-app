@@ -109,7 +109,7 @@ export const getMe = async (req: Request, res: Response) => {
     res.status(200).json({
       id: user.id,
       fullName: user.fullName,
-      userName: user.username,
+      username: user.username,
       profilePic: user.profilePic,
     });
   } catch (err) {

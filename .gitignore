@@ -1,5 +1,44 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-/server/generated/prisma/
+# Environment Variables 
+.env
+.env.*
+
+# Build output / Production artifacts
+/dist
+/build
+/.next/
+/.svelte-kit/
+/.output
+/.vercel
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Operating System generated files
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.Trashes
+
+
+# IDE and editor configuration
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+
+# Test and coverage reports
+/coverage
+.nyc_output
+/playwright-report/
+/test-
