@@ -5,7 +5,7 @@ import { errorHandler } from "../utils/errrorhandler.js";
 export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
-    const { id: receiverId } = req.params;
+    const { receiverId } = req.params;
     const senderId = req.user!.id;
 
     let conversation = await prisma.conversation.findFirst({
@@ -52,6 +52,77 @@ export const sendMessage = async (req: Request, res: Response) => {
     // TODO: use Socket.IO to send real time message
 
     res.status(201).json(newMessage);
+  } catch (err) {
+    errorHandler(err, res);
+  }
+};
+
+export const getConversation = async (req: Request, res: Response) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user!.id;
+
+    // add participants for security check, it's needed for security/
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        AND: [
+          { id: conversationId },
+          {
+            participants: {
+              some: { id: userId },
+            },
+          },
+        ],
+      },
+    });
+
+    if (!conversation) {
+      res
+        .status(404)
+        .json({ error: "Conversation not found or access denied." });
+      return;
+    }
+    const messages = await prisma.message.findMany({
+      where: {
+        conversationId: conversationId,
+      },
+      orderBy: {
+        createAt: "asc",
+      },
+      include: {
+        sender: {
+          select: { id: true, fullName: true, profilePic: true },
+        },
+      },
+    });
+    res.status(200).json(messages);
+  } catch (err) {
+    errorHandler(err, res);
+  }
+};
+
+export const getUserForSideBar = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    console.log("userId", userId);
+    const allConversations = await prisma.conversation.findMany({
+      where: {
+        participants: { some: { id: userId } },
+      },
+      orderBy: { updateAt: "asc" },
+      include: {
+        participants: {
+          where: { NOT: { id: userId } },
+          select: { id: true, profilePic: true, username: true },
+        },
+        messages: {
+          orderBy: { createAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+
+    res.status(200).json(allConversations);
   } catch (err) {
     errorHandler(err, res);
   }

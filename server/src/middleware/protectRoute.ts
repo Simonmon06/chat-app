@@ -23,7 +23,6 @@ export const protectRoute = async (
 ) => {
   try {
     const myToken = req.cookies.myJWT;
-    console.log(myToken);
     if (!myToken) {
       res.status(400).json({ error: "You need to login first" });
       return;
@@ -36,7 +35,6 @@ export const protectRoute = async (
       where: { id: decoded.userId },
       select: { id: true, username: true, fullName: true, profilePic: true },
     });
-
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;

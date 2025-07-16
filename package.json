@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch server/src/index.ts"
+    "dev": "tsx watch server/src/index.ts",
+    "db:clear": "tsx server/src/clear-db.ts"
   },
   "keywords": [],
   "author": "",
@@ -29,7 +30,8 @@
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.10.1"
+    "prisma": "^6.10.1",
+    "zod": "^4.0.5"
   },
   "ts-node": {
     "esm": true,
@@ -37,5 +39,8 @@
       "module": "NodeNext",
       "moduleResolution": "NodeNext"
     }
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

@@ -5,16 +5,7 @@ import { generateToken } from "../utils/generateTokens.js";
 import { errorHandler } from "../utils/errrorhandler.js";
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { username, fullName, password, confirmPassword, gender } = req.body;
-    if (!username || !fullName || !password || !confirmPassword || !gender) {
-      res.status(400).json({ error: "Please fill all the fields." });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      res.status(400).json({ error: "Passwords don't match" });
-      return;
-    }
+    const { username, fullName, password, gender } = req.body;
 
     const user = await prisma.user.findUnique({ where: { username } });
 
@@ -58,12 +49,13 @@ export const signup = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
-    const foundUser = await prisma.user.findUnique({ where: { username } });
 
+    const foundUser = await prisma.user.findUnique({ where: { username } });
     if (!foundUser) {
       res.status(400).json({ error: "Invalid credentials" });
       return;
     }
+
     const isPasswordCorrect = await bcryptjs.compare(
       password,
       foundUser.password
