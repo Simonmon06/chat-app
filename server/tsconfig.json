@@ -1,0 +1,17 @@
+{
+  // 继承根目录的基础配置
+  "extends": "../tsconfig.base.json",
+
+  "compilerOptions": {
+    // node js module
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // 允许 TypeScript 编译出 .js 文件
+    "noEmit": false,
+    // 指定编译后的文件输出到 server/dist 文件夹
+    "outDir": "dist"
+  },
+  // 明确告诉编译器只编译 src 目录下的文件
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
