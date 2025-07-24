@@ -1,5 +1,5 @@
 # Dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -8,7 +8,7 @@
 .env.*
 
 # Build output / Production artifacts
-/dist
+dist
 /build
 /.next/
 /.svelte-kit/

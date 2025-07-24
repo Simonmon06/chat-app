@@ -1,46 +1,18 @@
 {
-  "name": "chat-app",
+  "name": "chat-app-monorepo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "tsx watch server/src/index.ts",
-    "db:clear": "tsx server/src/clear-db.ts"
+    "build": "pnpm run --filter \"*\" --if-present build",
+    "dev:server": "pnpm --filter server dev",
+    "dev:client": "pnpm --filter client dev",
+    "dev:packages": "pnpm --filter \"@chat-app/*\" dev",
+    "dev": "concurrently \"pnpm:dev:*\"",
+    "prisma": "pnpm --filter server exec prisma"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.9",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.0.4",
-    "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.10.1",
-    "bcryptjs": "^3.0.2",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.10.1",
-    "zod": "^4.0.5"
-  },
-  "ts-node": {
-    "esm": true,
-    "compilerOptions": {
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext"
-    }
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "typescript": "^5.8.3",
+    "concurrently": "^9.2.0"
   }
 }

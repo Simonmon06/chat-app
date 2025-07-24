@@ -5,10 +5,7 @@ import {
   getUserForSideBar,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
-import {
-  sendMessageSchema,
-  getConversationSchema,
-} from "../utils/validationSchemas.js";
+import { sendMessageSchema, getConversationSchema } from "@chat-app/validators";
 import { validateRequest } from "../middleware/validateRequest.js";
 const router = express.Router();
 
