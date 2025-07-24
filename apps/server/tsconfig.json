@@ -1,6 +1,6 @@
 {
   // 继承根目录的基础配置
-  "extends": "../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
 
   "compilerOptions": {
     // node js module
