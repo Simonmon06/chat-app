@@ -1,27 +1,52 @@
 import { z } from "zod";
 import { Gender } from "@prisma/client";
 
-export const loginSchema = z.object({
-  body: z.object({
-    username: z.string(),
-    password: z.string(),
+export const loginFormSchema = z.object({
+  username: z.string().min(1, {
+    message: "Username is required.",
+  }),
+  password: z.string().min(1, {
+    message: "Password is required.",
   }),
 });
 
-export const signupSchema = z
+export const signupFormSchema = z
   .object({
-    body: z.object({
-      fullName: z.string(),
-      username: z.string(),
-      password: z.string(),
-      confirmPassword: z.string(),
-      gender: z.enum(Gender),
-    }),
+    fullName: z.string().min(1, "Full name is required"),
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    password: z.string().min(3, "Password must be at least 3 characters"),
+    confirmPassword: z.string(),
+    gender: z.enum(Gender),
   })
-  .refine((data) => data.body.password === data.body.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ["body", "confirmPassword"],
+    path: ["confirmPassword"],
   });
+
+// --------------------------------------------
+// schema for backend
+export const loginSchema = z.object({
+  body: loginFormSchema,
+});
+
+export const signupSchema = z.object({
+  body: signupFormSchema,
+});
+
+// export const signupSchema = z
+//   .object({
+//     body: z.object({
+//       fullName: z.string(),
+//       username: z.string(),
+//       password: z.string(),
+//       confirmPassword: z.string(),
+//       gender: z.enum(Gender),
+//     }),
+//   })
+//   .refine((data) => data.body.password === data.body.confirmPassword, {
+//     message: "Passwords don't match",
+//     path: ["body", "confirmPassword"],
+//   });
 
 export const sendMessageSchema = z.object({
   body: z.object({
