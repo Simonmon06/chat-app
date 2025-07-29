@@ -39,7 +39,7 @@ function LoginPage() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="username" {...field} />
+                  <Input placeholder="Username" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -52,7 +52,7 @@ function LoginPage() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="password" {...field} />
+                  <Input type="password" placeholder="Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

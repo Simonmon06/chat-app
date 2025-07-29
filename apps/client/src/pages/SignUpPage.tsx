@@ -10,20 +10,31 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
-import { loginFormSchema } from "@chat-app/validators";
+import { signupFormSchema } from "@chat-app/validators";
 import { Link } from "react-router-dom";
 
 function SignUpPage() {
-  const form = useForm<z.infer<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
+  const form = useForm<z.infer<typeof signupFormSchema>>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      fullName: "",
       username: "",
       password: "",
+      confirmPassword: "",
+      gender: undefined,
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
+  function onSubmit(values: z.infer<typeof signupFormSchema>) {
     console.log("Form submitted with values:", values);
   }
 
@@ -34,12 +45,26 @@ function SignUpPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Full Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>User Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="username" {...field} />
+                  <Input placeholder="User Name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -52,19 +77,63 @@ function SignUpPage() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="password" {...field} />
+                  <Input type="password" placeholder="Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Confirm Password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Please select your gender" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="male">male</SelectItem>
+                    <SelectItem value="female">female</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="flex flex-col items-center space-y-4">
             <Button type="submit" className="w-full">
-              Login
+              Sign Up
             </Button>
 
             <Button variant="link" asChild className="p-0 h-auto font-normal">
-              <Link to="/signup">{"Don't"} have an account? Sign up</Link>
+              <Link to="/login">Already have an account? Login</Link>
             </Button>
           </div>
         </form>

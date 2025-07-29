@@ -4,11 +4,25 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 function App() {
   return (
-    <div className="p-4 h-screen flex items-center justify-center">
+    <div>
       <Routes>
         <Route path="/" index element={<HomePage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/signup"
+          element={
+            <div className="flex items-center justify-center h-screen">
+              <SignUpPage />
+            </div>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <div className="flex items-center justify-center h-screen">
+              <LoginPage />
+            </div>
+          }
+        />
       </Routes>
     </div>
   );
