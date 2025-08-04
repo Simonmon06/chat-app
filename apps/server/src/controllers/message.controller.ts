@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
 import { errorHandler } from "../utils/errrorhandler.js";
-
+import { ConversationListItemType } from "@chat-app/validators";
 export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
@@ -101,26 +101,35 @@ export const getConversation = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserForSideBar = async (req: Request, res: Response) => {
+export const getAllSidebarConversations = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const userId = req.user!.id;
     console.log("userId", userId);
-    const allConversations = await prisma.conversation.findMany({
-      where: {
-        participants: { some: { id: userId } },
-      },
-      orderBy: { updateAt: "asc" },
-      include: {
-        participants: {
-          where: { NOT: { id: userId } },
-          select: { id: true, profilePic: true, username: true },
+    const allConversations: ConversationListItemType[] =
+      await prisma.conversation.findMany({
+        where: {
+          participants: { some: { id: userId } },
         },
-        messages: {
-          orderBy: { createAt: "desc" },
-          take: 1,
+        orderBy: { updateAt: "desc" },
+        include: {
+          participants: {
+            where: { NOT: { id: userId } },
+            select: {
+              id: true,
+              profilePic: true,
+              username: true,
+              fullName: true,
+            },
+          },
+          messages: {
+            orderBy: { createAt: "desc" },
+            take: 1,
+          },
         },
-      },
-    });
+      });
 
     res.status(200).json(allConversations);
   } catch (err) {

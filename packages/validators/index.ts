@@ -1,5 +1,55 @@
+import { Prisma, Gender, Message, User } from "@prisma/client";
 import { z } from "zod";
-import { Gender } from "@prisma/client";
+
+// ==================================================================
+// PRISMA PAYLOADS & TYPES (for sharing between client and server)
+// ==================================================================
+
+// for get all conversations
+export const conversationListItemPayload =
+  Prisma.validator<Prisma.ConversationDefaultArgs>()({
+    include: {
+      participants: {
+        where: {},
+        select: {
+          id: true,
+          fullName: true,
+          profilePic: true,
+          username: true,
+        },
+      },
+      messages: {
+        take: 1,
+        orderBy: {
+          createAt: "desc",
+        },
+      },
+    },
+  });
+
+// define message shape which returns from api
+export const messagePayload = Prisma.validator<Prisma.MessageDefaultArgs>()({
+  include: {
+    sender: {
+      select: {
+        id: true,
+        fullName: true,
+        profilePic: true,
+      },
+    },
+  },
+});
+
+// generate Types from Payload
+export type ConversationListItemType = Prisma.ConversationGetPayload<
+  typeof conversationListItemPayload
+>;
+
+export type MessageType = Prisma.MessageGetPayload<typeof messagePayload>;
+
+// ==================================================================
+// ZOD SCHEMAS (for request validation)
+// ==================================================================
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, {
@@ -32,21 +82,6 @@ export const loginSchema = z.object({
 export const signupSchema = z.object({
   body: signupFormSchema,
 });
-
-// export const signupSchema = z
-//   .object({
-//     body: z.object({
-//       fullName: z.string(),
-//       username: z.string(),
-//       password: z.string(),
-//       confirmPassword: z.string(),
-//       gender: z.enum(Gender),
-//     }),
-//   })
-//   .refine((data) => data.body.password === data.body.confirmPassword, {
-//     message: "Passwords don't match",
-//     path: ["body", "confirmPassword"],
-//   });
 
 export const sendMessageSchema = z.object({
   body: z.object({

@@ -1,15 +1,30 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useConversationStore } from "@/zustand/useConversationStore";
 
 type ConversationProps = {
+  id: string;
   avatarUrl: string;
   username: string;
   lastMessage: string;
 };
 
-function Conversation({ avatarUrl, username, lastMessage }: ConversationProps) {
+function Conversation({
+  id,
+  avatarUrl,
+  username,
+  lastMessage,
+}: ConversationProps) {
+  const { setSelectedConversationId } = useConversationStore();
+
+  const handleSelectConversation = () => {
+    setSelectedConversationId(id);
+  };
   return (
     <>
-      <div className="flex gap-4 items-center hover:bg-slate-200 dark:hover:bg-slate-700 rounded p-2 cursor-pointer">
+      <div
+        className="flex gap-4 items-center hover:bg-slate-200 dark:hover:bg-slate-700 rounded p-2 cursor-pointer"
+        onClick={handleSelectConversation}
+      >
         {/* avatar */}
         <Avatar className="w-12 h-12">
           <AvatarImage src={avatarUrl} />

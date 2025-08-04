@@ -1,28 +1,43 @@
 import { Message } from "./Message";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useConversationStore } from "@/zustand/useConversationStore";
 
-// Dummy message data for now
-const messagesData = [
-  { id: 1, text: "Hey, how's it going?", senderId: "me" },
-  {
-    id: 2,
-    text: "Pretty good! Just working on this chat app.",
-    senderId: "them",
-  },
-  { id: 3, text: "Nice! It's looking great.", senderId: "me" },
-  { id: 4, text: "Thanks! Trying to get the bubbles right.", senderId: "them" },
-];
+type MessageListProps = {
+  isLoading: boolean;
+};
 
-const loggedInUserId = "me"; // hardcoded for now
+export function MessageList({ isLoading }: MessageListProps) {
+  const { messages, selectedConversationId } = useConversationStore();
 
-export function MessageList() {
+  // Derive the messages to display for the currently selected conversation
+  const currentMessages = selectedConversationId
+    ? messages[selectedConversationId] || []
+    : [];
+
+  if (isLoading) {
+    return (
+      <div className="p-4 space-y-4">
+        <Skeleton className="h-16 w-48 rounded-lg" />
+        <div className="flex justify-end w-full">
+          <Skeleton className="h-20 w-56 rounded-lg" />
+        </div>
+        <Skeleton className="h-12 w-32 rounded-lg" />
+      </div>
+    );
+  }
+
+  if (currentMessages.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">No messages yet. Say hi!</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4 overflow-y-auto">
-      {messagesData.map((msg) => (
-        <Message
-          key={msg.id}
-          text={msg.text}
-          isOwnMessage={msg.senderId === loggedInUserId}
-        />
+      {currentMessages.map((msg) => (
+        <Message key={msg.id} message={msg} />
       ))}
     </div>
   );

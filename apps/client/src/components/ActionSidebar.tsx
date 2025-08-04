@@ -7,7 +7,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import useLogout from "@/hooks/useLogout";
+
 function ActionSidebar() {
+  const { logout } = useLogout();
   return (
     // justify-between pushes the content aside on the main direction
     <div className="flex flex-col h-full justify-between items-center p-2 bg-card rounded-lg border">
@@ -27,7 +30,7 @@ function ActionSidebar() {
         {/* logout buuton at the bottom*/}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={logout}>
               <LogOut className="h-6 w-6" />
             </Button>
           </TooltipTrigger>

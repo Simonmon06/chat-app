@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signupFormSchema } from "@chat-app/validators";
+import { Link } from "react-router-dom";
+import useSignup from "@/hooks/useSignup";
 import { Button } from "@/components/ui/button";
+import { AlertCircleIcon } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -17,10 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
-import { signupFormSchema } from "@chat-app/validators";
-import { Link } from "react-router-dom";
 
 function SignUpPage() {
   const form = useForm<z.infer<typeof signupFormSchema>>({
@@ -34,8 +37,10 @@ function SignUpPage() {
     },
   });
 
+  const { signup, isLoading, error } = useSignup();
+
   function onSubmit(values: z.infer<typeof signupFormSchema>) {
-    console.log("Form submitted with values:", values);
+    signup(values);
   }
 
   return (
@@ -127,10 +132,21 @@ function SignUpPage() {
                 </FormItem>
               )}
             />
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircleIcon />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             <div className="flex flex-col items-center space-y-4">
-              <Button type="submit" className="w-full">
-                Sign Up
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin"></LoaderCircle>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
 
               <Button variant="link" asChild className="p-0 h-auto font-normal">

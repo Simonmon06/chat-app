@@ -2,6 +2,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LoaderCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -13,8 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { loginFormSchema } from "@chat-app/validators";
 import { Link } from "react-router-dom";
+import useLogin from "@/hooks/useLogin";
 
 function LoginPage() {
+  const { login, isLoading, error } = useLogin();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -24,6 +28,7 @@ function LoginPage() {
   });
 
   function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    login(values);
     console.log("Form submitted with values:", values);
   }
 
@@ -59,9 +64,20 @@ function LoginPage() {
                 </FormItem>
               )}
             />
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <div className="flex flex-col items-center space-y-4">
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin"></LoaderCircle>
+                ) : (
+                  "Login"
+                )}
               </Button>
 
               <Button variant="link" asChild className="p-0 h-auto font-normal">

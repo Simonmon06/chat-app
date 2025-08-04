@@ -2,7 +2,7 @@ import express from "express";
 import {
   sendMessage,
   getConversation,
-  getUserForSideBar,
+  getAllSidebarConversations,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 import { sendMessageSchema, getConversationSchema } from "@chat-app/validators";
@@ -23,6 +23,6 @@ router.get(
   getConversation
 );
 
-router.get("/conversations", protectRoute, getUserForSideBar);
+router.get("/conversations", protectRoute, getAllSidebarConversations);
 
 export default router;
