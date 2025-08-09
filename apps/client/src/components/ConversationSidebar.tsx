@@ -38,6 +38,7 @@ function ConversationSidebar() {
           <Conversation
             key={item.id}
             id={item.id}
+            receiverId={item.participants[0].id}
             avatarUrl={item.participants[0].profilePic}
             username={item.participants[0].username}
             lastMessage={item.messages[0].body}

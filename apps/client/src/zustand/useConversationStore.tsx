@@ -14,7 +14,8 @@ interface ConversationState {
   setConversationListItems: (
     conversation: ConversationListItemType[] | null
   ) => void;
-
+  receiverId: string | null;
+  setReceiverId: (id: string | null) => void;
   selectedConversationId: string | null;
   setSelectedConversationId: (id: string | null) => void;
   messages: Record<string, MessageType[]>;
@@ -25,7 +26,12 @@ export const useConversationStore = create<ConversationState>((set) => ({
   conversationListItems: [],
   setConversationListItems: (listItems) =>
     set({ conversationListItems: listItems }),
+
+  receiverId: null,
+  setReceiverId: (id) => set({ receiverId: id }),
+
   selectedConversationId: null,
+
   setSelectedConversationId: (id) => set({ selectedConversationId: id }),
   messages: {},
   setMessages: (conversationId, messages) =>

@@ -3,9 +3,14 @@ import {
   sendMessage,
   getConversation,
   getAllSidebarConversations,
+  addMessageToConversation,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
-import { sendMessageSchema, getConversationSchema } from "@chat-app/validators";
+import {
+  sendMessageSchema,
+  getConversationSchema,
+  addMessageToConversationSchema,
+} from "@chat-app/validators";
 import { validateRequest } from "../middleware/validateRequest.js";
 const router = express.Router();
 
@@ -16,6 +21,12 @@ router.post(
   sendMessage
 );
 
+router.post(
+  "/conversation/send/:conversationId",
+  protectRoute,
+  validateRequest(addMessageToConversationSchema),
+  addMessageToConversation
+);
 router.get(
   "/conversation/:conversationId",
   protectRoute,

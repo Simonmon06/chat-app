@@ -57,6 +57,50 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
+export const addMessageToConversation = async (req: Request, res: Response) => {
+  try {
+    const { message } = req.body;
+    const { conversationId } = req.params;
+    const senderId = req.user!.id;
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+        participants: {
+          some: { id: senderId },
+        },
+      },
+    });
+
+    if (!conversation) {
+      res
+        .status(404)
+        .json({ error: "Conversation not found or access denied." });
+      return;
+    }
+
+    const newMessage = await prisma.message.create({
+      data: {
+        senderId: senderId,
+        body: message,
+        conversationId: conversation.id,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            fullName: true,
+            profilePic: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json(newMessage);
+  } catch (err) {
+    errorHandler(err, res);
+  }
+};
+
 export const getConversation = async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;

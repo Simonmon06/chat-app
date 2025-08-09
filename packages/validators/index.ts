@@ -92,6 +92,15 @@ export const sendMessageSchema = z.object({
   }),
 });
 
+export const addMessageToConversationSchema = z.object({
+  body: z.object({
+    message: z.string().min(1, "Message cannot be empty"),
+  }),
+  params: z.object({
+    conversationId: z.cuid("Invalid conversation ID format"),
+  }),
+});
+
 export const getConversationSchema = z.object({
   params: z.object({
     conversationId: z.cuid("Invalid Conversation ID format"),
