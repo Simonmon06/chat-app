@@ -26,15 +26,20 @@ export function Message({ message }: MessageProps) {
     "text-xs text-muted-foreground mt-1",
     isOwnMessage ? "self-end pr-3" : "self-start pl-3"
   );
+
   const avatar = (
     <Avatar>
-      <AvatarImage src={message.sender.profilePic} />
-      <AvatarFallback>{message.sender.fullName.substring(0, 2)}</AvatarFallback>
+      <AvatarImage src={message.sender.profilePic ?? undefined} />
+      <AvatarFallback>
+        {message.sender.nickname?.substring(0, 2)}
+      </AvatarFallback>
     </Avatar>
   );
 
   // e.g., 5:03 PM
-  const formattedTime = format(new Date(message.createAt), "HH:mm");
+  const created = new Date(message.createdAt);
+  const timeShort = format(created, "HH:mm");
+  const timeFull = format(created, "PPpp");
 
   return (
     <div className={containerClass}>
@@ -42,10 +47,12 @@ export function Message({ message }: MessageProps) {
 
       <div className="flex flex-col">
         <div className={bubbleClass}>
-          <p>{message.body}</p>
+          <p>{message.content}</p>
         </div>
 
-        <p className={timeClass}>{formattedTime}</p>
+        <p className={timeClass} title={timeFull}>
+          {timeShort}
+        </p>
       </div>
 
       {isOwnMessage && avatar}

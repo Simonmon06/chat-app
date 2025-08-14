@@ -18,7 +18,7 @@ export const validateRequest =
         return;
       }
       if (result.data.body) {
-        req.body = result.data.body;
+        req.body = result.data.body as Request["body"];
       }
 
       if (result.data.query) {

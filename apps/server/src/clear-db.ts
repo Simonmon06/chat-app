@@ -4,12 +4,22 @@ import path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 import { PrismaClient } from "@prisma/client";
+
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Refusing to run clean-db in production");
+}
+
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("Starting to clear the database...");
 
-  const modelNames = ["Message", "Conversation", "User"];
+  const modelNames = [
+    "Message",
+    "ConversationParticipant",
+    "Conversation",
+    "User",
+  ];
 
   await prisma.$transaction(
     modelNames.map((modelName) =>

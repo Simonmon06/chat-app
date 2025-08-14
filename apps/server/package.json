@@ -7,9 +7,11 @@
   "license": "ISC",
   "author": "Zeye Gu",
   "scripts": {
+    "prebuild": "prisma generate",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "seed": "prisma db seed"
+    "seed": "prisma db seed",
+    "db:clean": "tsx src/clear-db.ts"
   },
   "dependencies": {
     "@chat-app/validators": "workspace:*",

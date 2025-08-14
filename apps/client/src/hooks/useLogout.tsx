@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useState, useCallback } from "react";
 import axios from "axios";
 import { useAuthContext } from "@/context/AuthContext";
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler";
@@ -9,22 +8,26 @@ export const useLogout = () => {
   const [error, setError] = useState<string | null>(null);
   const { setAuthUser } = useAuthContext();
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await axios.post("/api/auth/logout");
-      console.log(res.data);
+      await axios.post("/api/auth/logout");
       setAuthUser(null);
-    } catch (error) {
-      const errorMessage = axiosErrorHandler(error);
-      console.log(errorMessage);
-      setError(errorMessage);
-      throw new Error(errorMessage);
+      return true;
+    } catch (err: unknown) {
+      // 如果 401（比如 token 已过期），也当做logout
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setAuthUser(null);
+        return true;
+      }
+      const msg = axiosErrorHandler(err);
+      setError(msg);
+      return false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setAuthUser]);
 
   return { logout, isLoading, error };
 };

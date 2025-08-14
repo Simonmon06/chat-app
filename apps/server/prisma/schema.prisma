@@ -28,7 +28,7 @@ model User {
   id         String   @id @default(cuid())
   email      String   @unique @db.Citext // 大小写不敏感
   username   String   @unique @db.Citext
-  fullName   String?
+  nickname   String?
   password   String
   profilePic String?
   createdAt  DateTime @default(now())

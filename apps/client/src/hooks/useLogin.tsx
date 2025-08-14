@@ -1,17 +1,14 @@
 import { useState } from "react";
-import z from "zod";
 import axios from "axios";
-import { loginFormSchema } from "@chat-app/validators";
+import { type LoginFormTypes } from "@chat-app/validators";
 import { useAuthContext } from "@/context/AuthContext";
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler";
-
-type LoginInput = z.infer<typeof loginFormSchema>;
 
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { setAuthUser } = useAuthContext();
-  const login = async (input: LoginInput) => {
+  const login = async (input: LoginFormTypes) => {
     setIsLoading(true);
     setError(null);
     try {

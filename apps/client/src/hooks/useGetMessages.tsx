@@ -2,33 +2,40 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { axiosErrorHandler } from "@/utils/axiosErrorHandler";
-
+import { useRef } from "react";
 export const useGetMessages = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { setMessages, selectedConversationId } = useConversationStore();
+  const reqRef = useRef(0);
 
   useEffect(() => {
-    const getMessages = async () => {
-      if (!selectedConversationId) return;
+    if (!selectedConversationId) return;
+    const ctrl = new AbortController();
+    const conversationId = selectedConversationId;
 
-      setIsLoading(true);
-      setError(null);
-      try {
-        const res = await axios.get(
-          `/api/messages/conversation/${selectedConversationId}`
-        );
-        setMessages(selectedConversationId, res.data);
-      } catch (error) {
-        const errorMessage = axiosErrorHandler(error);
-        setError(errorMessage);
-      } finally {
+    const myReq = ++reqRef.current;
+
+    axios
+      .get(`/api/messages/conversations/${conversationId}`, {
+        signal: ctrl.signal,
+      })
+      .then((res) => {
+        if (reqRef.current !== myReq) return;
+        setMessages(conversationId, res.data ?? []);
+      })
+      .catch((err: any) => {
+        if (err?.name === "CanceledError") return;
+        if (reqRef.current !== myReq) return;
+        setError(axiosErrorHandler(err));
+      })
+      .finally(() => {
+        if (reqRef.current !== myReq) return;
         setIsLoading(false);
-      }
-    };
+      });
 
-    getMessages();
+    return () => ctrl.abort();
   }, [selectedConversationId, setMessages]);
 
   return { isLoading, error };

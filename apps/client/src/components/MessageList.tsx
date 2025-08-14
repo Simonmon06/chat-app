@@ -1,20 +1,31 @@
 import { Message } from "./Message";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationStore } from "@/zustand/useConversationStore";
-
+import { type MessageType } from "@chat-app/validators";
+import { useRef, useEffect } from "react";
 type MessageListProps = {
   isLoading: boolean;
 };
 
 export function MessageList({ isLoading }: MessageListProps) {
-  const { messages, selectedConversationId } = useConversationStore();
+  const selectedConversationId = useConversationStore(
+    (s) => s.selectedConversationId
+  );
+  const msgs = useConversationStore((s) =>
+    selectedConversationId ? s.messages[selectedConversationId] : undefined
+  );
 
-  // Derive the messages to display for the currently selected conversation
-  const currentMessages = selectedConversationId
-    ? messages[selectedConversationId] || []
-    : [];
+  if (!selectedConversationId) return null;
 
-  if (isLoading) {
+  const showSkeleton = isLoading || msgs === undefined;
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [selectedConversationId, msgs?.length]);
+
+  if (showSkeleton) {
     return (
       <div className="p-4 space-y-4">
         <Skeleton className="h-16 w-48 rounded-lg" />
@@ -25,7 +36,8 @@ export function MessageList({ isLoading }: MessageListProps) {
       </div>
     );
   }
-
+  const emptyList: MessageType[] = [];
+  const currentMessages = msgs ?? emptyList;
   if (currentMessages.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -35,10 +47,11 @@ export function MessageList({ isLoading }: MessageListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 overflow-y-auto">
+    <div className="flex flex-col gap-4 p-4">
       {currentMessages.map((msg) => (
         <Message key={msg.id} message={msg} />
       ))}
+      <div ref={bottomRef} />
     </div>
   );
 }
