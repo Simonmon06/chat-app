@@ -1,12 +1,10 @@
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupFormSchema } from "@chat-app/validators";
+import { signupFormSchema, type SignupFormTypes } from "@chat-app/validators";
 import { Link } from "react-router-dom";
 import useSignup from "@/hooks/useSignup";
 import { Button } from "@/components/ui/button";
-import { AlertCircleIcon } from "lucide-react";
-import { LoaderCircle } from "lucide-react";
+import { AlertCircleIcon, LoaderCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -15,48 +13,67 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 
 function SignUpPage() {
-  const form = useForm<z.infer<typeof signupFormSchema>>({
+  const form = useForm<SignupFormTypes>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
-      fullName: "",
+      email: "",
+      nickname: "",
       username: "",
       password: "",
       confirmPassword: "",
-      gender: undefined,
     },
+    mode: "onTouched",
   });
 
   const { signup, isLoading, error } = useSignup();
 
-  function onSubmit(values: z.infer<typeof signupFormSchema>) {
+  function onSubmit(values: SignupFormTypes) {
     signup(values);
+    // need{ email, username, password, nickname?, confirmPassword } on backend
   }
 
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Login Chat App</h1>
+        <h1 className="text-2xl font-bold text-center">Create your account</h1>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="fullName"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full Name" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nickname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nickname</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nickname"
+                      autoComplete="name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,14 +85,19 @@ function SignUpPage() {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User Name</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="User Name" {...field} />
+                    <Input
+                      placeholder="Username"
+                      autoComplete="username"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="password"
@@ -83,7 +105,12 @@ function SignUpPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -100,6 +127,7 @@ function SignUpPage() {
                     <Input
                       type="password"
                       placeholder="Confirm Password"
+                      autoComplete="new-password"
                       {...field}
                     />
                   </FormControl>
@@ -108,33 +136,9 @@ function SignUpPage() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Please select your gender" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="male">male</SelectItem>
-                      <SelectItem value="female">female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             {error && (
               <Alert variant="destructive">
-                <AlertCircleIcon />
+                <AlertCircleIcon className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -143,7 +147,7 @@ function SignUpPage() {
             <div className="flex flex-col items-center space-y-4">
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin"></LoaderCircle>
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : (
                   "Sign Up"
                 )}

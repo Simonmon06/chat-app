@@ -4,13 +4,20 @@ import Conversation from "./Conversation";
 import { useGetConversationListItem } from "@/hooks/useGetConversationListItems";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationStore } from "@/zustand/useConversationStore";
+import { useAuthContext } from "@/context/AuthContext";
+
 function ConversationSidebar() {
-  const { conversationListItems } = useConversationStore();
+  const { authUser: me } = useAuthContext();
+  const conversationListItems = useConversationStore(
+    (s) => s.conversationListItems
+  );
+
   const { error, isLoading } = useGetConversationListItem();
-
-  let content;
-
-  if (isLoading) {
+  let content: React.ReactNode;
+  const isFetching = isLoading || conversationListItems === null;
+  console.log("isFetching", isFetching);
+  if (isFetching) {
+    console.log("loading loading ?");
     content = (
       <div className="space-y-2 pt-2">
         {[...Array(5)].map((_, i) => (
@@ -32,20 +39,46 @@ function ConversationSidebar() {
       </div>
     );
   } else {
-    content = (
-      <div className="flex-1 p-2 overflow-y-auto">
-        {conversationListItems?.map((item) => (
-          <Conversation
-            key={item.id}
-            id={item.id}
-            receiverId={item.participants[0].id}
-            avatarUrl={item.participants[0].profilePic}
-            username={item.participants[0].username}
-            lastMessage={item.messages[0].body}
-          />
-        ))}
-      </div>
-    );
+    const items = conversationListItems ?? [];
+    if (items.length === 0) {
+      content = (
+        <div className="flex-1 p-6 text-center text-muted-foreground">
+          <p className="font-medium">No conversations yet</p>
+          <p className="text-sm mt-1">Start a chat from the search bar.</p>
+        </div>
+      );
+    } else {
+      content = (
+        <div className="flex-1 p-2 overflow-y-auto">
+          {items?.map((item) => {
+            // need to consider sending message to myself
+            const peerUser = item.participants?.[0]?.user;
+            const isSelfDM = !item.isGroup && !peerUser;
+
+            const displayUser = isSelfDM ? me : peerUser;
+            const displayName = isSelfDM
+              ? "Saved messages"
+              : displayUser?.nickname ?? displayUser?.username ?? "Unknown";
+
+            const avatarUrl = displayUser?.profilePic ?? "";
+
+            const receiverId = displayUser?.id ?? me?.id ?? "";
+            const lastMessage = item.messages?.[0]?.content ?? "";
+
+            return (
+              <Conversation
+                key={item.id}
+                id={item.id}
+                receiverId={receiverId}
+                avatarUrl={avatarUrl}
+                nikename={displayName}
+                lastMessage={lastMessage}
+              ></Conversation>
+            );
+          })}
+        </div>
+      );
+    }
   }
   return (
     <div className="flex flex-col h-full w-full">

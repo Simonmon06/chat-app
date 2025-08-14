@@ -2,56 +2,51 @@ import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
 import { errorHandler } from "../utils/errrorhandler.js";
 import { ConversationListItemType } from "@chat-app/validators";
+import { dmKeyOf } from "../utils/dmKey.js";
+const senderSelect = {
+  id: true,
+  username: true,
+  nickname: true,
+  profilePic: true,
+};
+
 export const sendMessage = async (req: Request, res: Response) => {
   try {
-    const { message } = req.body;
+    const { content } = req.body;
     const { receiverId } = req.params;
     const senderId = req.user!.id;
-
-    let conversation = await prisma.conversation.findFirst({
-      where: {
-        // participants has at least 1 senderId and 1 receiverId
-        AND: [
-          { participants: { some: { id: senderId } } },
-          { participants: { some: { id: receiverId } } },
-        ],
-      },
-    });
-
-    // otherwise create new conversation
-    if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: {
-          // use connect to add send and receiver by using their unique properties
-          participants: {
-            connect: [{ id: senderId }, { id: receiverId }],
-          },
-        },
-      });
-    }
-
-    // 3. create a new message, add conversion and sender id
-    const newMessage = await prisma.message.create({
-      data: {
-        senderId: senderId,
-        body: message,
-        conversationId: conversation.id,
-      },
-      //  include if you want to see sender info when return
-      include: {
-        sender: {
-          select: {
-            id: true,
-            fullName: true,
-            profilePic: true,
-          },
+    const dmKey = dmKeyOf(senderId, receiverId);
+    const conversation = await prisma.conversation.upsert({
+      where: { dmKey },
+      update: {},
+      create: {
+        isGroup: false,
+        dmKey,
+        participants: {
+          create: [
+            { userId: senderId },
+            ...(senderId === receiverId ? [] : [{ userId: receiverId }]),
+          ],
         },
       },
     });
 
-    // TODO: use Socket.IO to send real time message
+    const [newMessage] = await prisma.$transaction([
+      prisma.message.create({
+        data: { senderId, conversationId: conversation.id, content },
+        include: {
+          sender: {
+            select: senderSelect,
+          },
+        },
+      }),
+      prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
 
-    res.status(201).json(newMessage);
+    return res.status(201).json(newMessage);
   } catch (err) {
     errorHandler(err, res);
   }
@@ -59,43 +54,31 @@ export const sendMessage = async (req: Request, res: Response) => {
 
 export const addMessageToConversation = async (req: Request, res: Response) => {
   try {
-    const { message } = req.body;
+    const { content } = req.body;
     const { conversationId } = req.params;
     const senderId = req.user!.id;
-    const conversation = await prisma.conversation.findUnique({
-      where: {
-        id: conversationId,
-        participants: {
-          some: { id: senderId },
-        },
-      },
-    });
 
-    if (!conversation) {
-      res
-        .status(404)
+    const member = await prisma.conversationParticipant.findUnique({
+      where: { conversationId_userId: { conversationId, userId: senderId } },
+    });
+    if (!member) {
+      return res
+        .status(403)
         .json({ error: "Conversation not found or access denied." });
-      return;
     }
 
-    const newMessage = await prisma.message.create({
-      data: {
-        senderId: senderId,
-        body: message,
-        conversationId: conversation.id,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            fullName: true,
-            profilePic: true,
-          },
-        },
-      },
-    });
+    const [newMessage] = await prisma.$transaction([
+      prisma.message.create({
+        data: { senderId, conversationId, content },
+        include: { sender: { select: senderSelect } },
+      }),
+      prisma.conversation.update({
+        where: { id: conversationId },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
 
-    res.status(201).json(newMessage);
+    return res.status(201).json(newMessage);
   } catch (err) {
     errorHandler(err, res);
   }
@@ -106,40 +89,26 @@ export const getConversation = async (req: Request, res: Response) => {
     const { conversationId } = req.params;
     const userId = req.user!.id;
 
-    // add participants for security check, it's needed for security/
     const conversation = await prisma.conversation.findFirst({
       where: {
-        AND: [
-          { id: conversationId },
-          {
-            participants: {
-              some: { id: userId },
-            },
-          },
-        ],
+        AND: [{ id: conversationId }, { participants: { some: { userId } } }],
       },
+      select: { id: true },
     });
 
     if (!conversation) {
-      res
+      return res
         .status(404)
         .json({ error: "Conversation not found or access denied." });
-      return;
     }
+
     const messages = await prisma.message.findMany({
-      where: {
-        conversationId: conversationId,
-      },
-      orderBy: {
-        createAt: "asc",
-      },
-      include: {
-        sender: {
-          select: { id: true, fullName: true, profilePic: true },
-        },
-      },
+      where: { conversationId },
+      orderBy: { createdAt: "asc" },
+      include: { sender: { select: senderSelect } },
     });
-    res.status(200).json(messages);
+
+    return res.status(200).json(messages);
   } catch (err) {
     errorHandler(err, res);
   }
@@ -151,31 +120,32 @@ export const getAllSidebarConversations = async (
 ) => {
   try {
     const userId = req.user!.id;
-    console.log("userId", userId);
-    const allConversations: ConversationListItemType[] =
-      await prisma.conversation.findMany({
-        where: {
-          participants: { some: { id: userId } },
-        },
-        orderBy: { updateAt: "desc" },
-        include: {
-          participants: {
-            where: { NOT: { id: userId } },
-            select: {
-              id: true,
-              profilePic: true,
-              username: true,
-              fullName: true,
-            },
-          },
-          messages: {
-            orderBy: { createAt: "desc" },
-            take: 1,
-          },
-        },
-      });
 
-    res.status(200).json(allConversations);
+    const allConversations = await prisma.conversation.findMany({
+      where: { participants: { some: { userId } } },
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        isGroup: true,
+        dmKey: true,
+        updatedAt: true,
+        participants: {
+          where: { NOT: { userId } },
+          select: {
+            role: true,
+            joinedAt: true,
+            user: { select: senderSelect },
+          },
+        },
+        messages: {
+          take: 1,
+          orderBy: { createdAt: "desc" },
+          include: { sender: { select: senderSelect } },
+        },
+      },
+    });
+
+    return res.status(200).json(allConversations);
   } catch (err) {
     errorHandler(err, res);
   }

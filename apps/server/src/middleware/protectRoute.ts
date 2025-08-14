@@ -24,16 +24,16 @@ export const protectRoute = async (
   try {
     const myToken = req.cookies.myJWT;
     if (!myToken) {
-      res.status(400).json({ error: "You need to login first" });
+      res.status(401).json({ error: "You need to login first" });
       return;
     }
-    const decoded = jwt.verify(myToken, config.jwtSecret) as DecodedToken;
+    const decoded = jwt.verify(myToken, config.JWT_SECRET) as DecodedToken;
     if (!decoded) {
       res.status(401).json({ error: "Unauthorized: Invalid Token" });
     }
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, username: true, fullName: true, profilePic: true },
+      select: { id: true, username: true, nickname: true, profilePic: true },
     });
     if (!user) {
       res.status(404).json({ error: "User not found" });
@@ -41,7 +41,7 @@ export const protectRoute = async (
     }
     req.user = user;
 
-    next();
+    return next();
   } catch (err: unknown) {
     errorHandler(err, res);
   }

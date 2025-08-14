@@ -14,7 +14,8 @@ function getEnvVariable(key: string): string {
 }
 
 export const config = {
-  jwtSecret: getEnvVariable("JWT_SECRET"),
-  nodeEnv: getEnvVariable("NODE_ENV"),
-  databaseUrl: getEnvVariable("DATABASE_URL"),
+  JWT_SECRET: getEnvVariable("JWT_SECRET"),
+  NODE_ENV: getEnvVariable("NODE_ENV"),
+  DATABASE_URL: getEnvVariable("DATABASE_URL"),
+  COOKIE_SAMESITE: getEnvVariable("COOKIE_SAMESITE"),
 };

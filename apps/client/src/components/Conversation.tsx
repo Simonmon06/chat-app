@@ -5,7 +5,7 @@ type ConversationProps = {
   id: string;
   receiverId: string;
   avatarUrl: string;
-  username: string;
+  nikename: string;
   lastMessage: string;
 };
 
@@ -13,7 +13,7 @@ function Conversation({
   id,
   receiverId,
   avatarUrl,
-  username,
+  nikename,
   lastMessage,
 }: ConversationProps) {
   const { setSelectedConversationId, setReceiverId } = useConversationStore();
@@ -34,13 +34,13 @@ function Conversation({
         {/* avatar */}
         <Avatar className="w-12 h-12">
           <AvatarImage src={avatarUrl} />
-          <AvatarFallback>{username.substring(0, 2)}</AvatarFallback>
+          <AvatarFallback>{nikename.substring(0, 2)}</AvatarFallback>
         </Avatar>
 
         {/* min-w-0 allows the flebox to shrink, default is auto*/}
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex justify-between items-center">
-            <p className="font-bold">{username}</p>
+            <p className="font-bold">{nikename}</p>
             {/* TODO: Maybe add timestramp */}
           </div>
           <p className="text-sm text-muted-foreground truncate">

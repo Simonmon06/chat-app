@@ -22,13 +22,13 @@ router.post(
 );
 
 router.post(
-  "/conversation/send/:conversationId",
+  "/conversations/send/:conversationId",
   protectRoute,
   validateRequest(addMessageToConversationSchema),
   addMessageToConversation
 );
 router.get(
-  "/conversation/:conversationId",
+  "/conversations/:conversationId",
   protectRoute,
   validateRequest(getConversationSchema),
   getConversation

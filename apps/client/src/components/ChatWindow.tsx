@@ -1,18 +1,20 @@
-//  file: apps/client/src/components/ChatWindow.tsx
-
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { WelcomeMessage } from "./WelcomeMessage";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { useGetMessages } from "@/hooks/useGetMessages";
+import { useAuthContext } from "@/context/AuthContext";
 export function ChatWindow() {
-  const { conversationListItems, selectedConversationId } =
-    useConversationStore();
-  console.log("selectedConversationId in ChatWindow: ", selectedConversationId);
-  console.log("conversationListItems in ChatWindow: ", conversationListItems);
-  const { isLoading, error } = useGetMessages();
+  const { authUser: me } = useAuthContext();
 
+  const conversationListItems = useConversationStore(
+    (state) => state.conversationListItems
+  );
+  const selectedConversationId = useConversationStore(
+    (state) => state.selectedConversationId
+  );
+  const { isLoading, error } = useGetMessages();
   const selectedConversation = conversationListItems?.find(
     (c) => c.id === selectedConversationId
   );
@@ -24,22 +26,25 @@ export function ChatWindow() {
       </div>
     );
   }
+  if (!selectedConversation) {
+    return <WelcomeMessage />;
+  }
+
+  const peerUser = selectedConversation.participants?.[0]?.user;
+  const isSelfDM = !selectedConversation.isGroup && !peerUser;
+  const displayUser = isSelfDM ? me : peerUser;
+  const displayName = isSelfDM
+    ? "Saved messages"
+    : displayUser?.nickname ?? displayUser?.username ?? "Unknown";
+  const avatarUrl = displayUser?.profilePic ?? "";
+
   return (
     <div className="flex flex-col h-full">
-      {selectedConversation ? (
-        <>
-          <ChatHeader
-            username={selectedConversation.participants[0].fullName}
-            avatarUrl={selectedConversation.participants[0].profilePic}
-          />
-          <div className="flex-1 overflow-y-auto">
-            <MessageList isLoading={isLoading} />
-          </div>
-          <MessageInput />
-        </>
-      ) : (
-        <WelcomeMessage />
-      )}
+      <ChatHeader username={displayName} avatarUrl={avatarUrl} />
+      <div className="flex-1 overflow-y-auto">
+        <MessageList key={selectedConversationId} isLoading={isLoading} />
+      </div>
+      <MessageInput key={selectedConversationId} />
     </div>
   );
 }
