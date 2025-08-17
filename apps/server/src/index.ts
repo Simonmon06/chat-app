@@ -3,7 +3,7 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
 import { config } from "./config.js";
-
+import usersRoutes from "./routes/users.route.js";
 const app = express();
 
 const PORT = 3001;
@@ -13,6 +13,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/users", usersRoutes);
 
 app.listen(PORT, () => {
   console.log(`😊😊Server is running at http://localhost:${PORT}/`);

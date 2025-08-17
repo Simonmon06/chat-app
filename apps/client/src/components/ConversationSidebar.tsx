@@ -1,15 +1,17 @@
 import { SidebarSearch } from "./SidebarSearch";
 import { Separator } from "@/components/ui/separator";
-import Conversation from "./Conversation";
+import Conversation from "./ConversationItem";
 import { useGetConversationListItem } from "@/hooks/useGetConversationListItems";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationStore } from "@/zustand/useConversationStore";
+import { usePickFrom } from "@/hooks/z-generic";
 import { useAuthContext } from "@/context/AuthContext";
 
 function ConversationSidebar() {
   const { authUser: me } = useAuthContext();
-  const conversationListItems = useConversationStore(
-    (s) => s.conversationListItems
+  const { conversationListItems } = usePickFrom(
+    useConversationStore,
+    "conversationListItems"
   );
 
   const { error, isLoading } = useGetConversationListItem();

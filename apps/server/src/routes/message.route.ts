@@ -1,28 +1,36 @@
 import express from "express";
 import {
-  sendMessage,
+  startConversation,
   getConversation,
   getAllSidebarConversations,
   addMessageToConversation,
+  ensureDmConversation,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 import {
-  sendMessageSchema,
+  startConversationSchema,
   getConversationSchema,
   addMessageToConversationSchema,
+  ensureDmConversationSchema,
 } from "@chat-app/validators";
 import { validateRequest } from "../middleware/validateRequest.js";
 const router = express.Router();
 
 router.post(
+  "/users/:receiverId/conversation",
+  protectRoute,
+  validateRequest(ensureDmConversationSchema),
+  ensureDmConversation
+);
+router.post(
   "/send/:receiverId",
   protectRoute,
-  validateRequest(sendMessageSchema),
-  sendMessage
+  validateRequest(startConversationSchema),
+  startConversation
 );
 
 router.post(
-  "/conversations/send/:conversationId",
+  "/conversations/add/:conversationId",
   protectRoute,
   validateRequest(addMessageToConversationSchema),
   addMessageToConversation

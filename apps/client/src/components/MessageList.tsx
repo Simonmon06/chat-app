@@ -1,3 +1,4 @@
+import { usePickFrom } from "@/hooks/z-generic";
 import { Message } from "./Message";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationStore } from "@/zustand/useConversationStore";
@@ -8,8 +9,9 @@ type MessageListProps = {
 };
 
 export function MessageList({ isLoading }: MessageListProps) {
-  const selectedConversationId = useConversationStore(
-    (s) => s.selectedConversationId
+  const { selectedConversationId } = usePickFrom(
+    useConversationStore,
+    "selectedConversationId"
   );
   const msgs = useConversationStore((s) =>
     selectedConversationId ? s.messages[selectedConversationId] : undefined

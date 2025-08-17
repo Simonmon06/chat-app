@@ -10,10 +10,64 @@ const senderSelect = {
   profilePic: true,
 };
 
-export const sendMessage = async (req: Request, res: Response) => {
+export const ensureDmConversation = async (req: Request, res: Response) => {
   try {
-    const { content } = req.body;
-    const { receiverId } = req.params;
+    const { receiverId } = req.validatedParams!;
+    const userId = req.user!.id;
+    const dmKey = dmKeyOf(userId, receiverId);
+
+    // 先查有没有
+    let conv = await prisma.conversation.findUnique({ where: { dmKey } });
+    let created = false;
+
+    if (!conv) {
+      conv = await prisma.conversation.create({
+        data: {
+          isGroup: false,
+          dmKey,
+          participants: {
+            create: [
+              { userId },
+              ...(userId === receiverId ? [] : [{ userId: receiverId }]),
+            ],
+          },
+        },
+      });
+      created = true;
+    }
+
+    const item = await prisma.conversation.findUnique({
+      where: { id: conv!.id },
+      select: {
+        id: true,
+        isGroup: true,
+        updatedAt: true,
+        participants: {
+          where: { NOT: { userId } },
+          select: {
+            role: true,
+            joinedAt: true,
+            user: { select: senderSelect },
+          },
+        },
+        messages: {
+          take: 1,
+          orderBy: { createdAt: "desc" },
+          include: { sender: { select: senderSelect } },
+        },
+      },
+    });
+
+    return res.status(created ? 201 : 200).json(item);
+  } catch (err) {
+    errorHandler(err, res);
+  }
+};
+
+export const startConversation = async (req: Request, res: Response) => {
+  try {
+    const { content } = req.validatedBody;
+    const { receiverId } = req.validatedParams!;
     const senderId = req.user!.id;
     const dmKey = dmKeyOf(senderId, receiverId);
     const conversation = await prisma.conversation.upsert({
@@ -54,8 +108,9 @@ export const sendMessage = async (req: Request, res: Response) => {
 
 export const addMessageToConversation = async (req: Request, res: Response) => {
   try {
-    const { content } = req.body;
-    const { conversationId } = req.params;
+    const { content } = req.validatedBody;
+    const { conversationId } = req.validatedParams!;
+
     const senderId = req.user!.id;
 
     const member = await prisma.conversationParticipant.findUnique({
@@ -86,7 +141,7 @@ export const addMessageToConversation = async (req: Request, res: Response) => {
 
 export const getConversation = async (req: Request, res: Response) => {
   try {
-    const { conversationId } = req.params;
+    const { conversationId } = req.validatedParams!;
     const userId = req.user!.id;
 
     const conversation = await prisma.conversation.findFirst({

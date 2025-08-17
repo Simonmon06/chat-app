@@ -6,9 +6,8 @@ import { useAuthContext } from "@/context/AuthContext";
 export const useGetConversationListItem = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // set listItem to the store
   const { authUser } = useAuthContext();
-  const { setConversationListItems } = useConversationStore();
+  const { setConversationListItems } = useConversationStore.getState();
   const refresh = useCallback(
     async (signal: AbortSignal) => {
       setConversationListItems(null);

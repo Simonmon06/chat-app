@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useConversationStore } from "@/zustand/useConversationStore";
+import { useNavigate } from "react-router-dom";
 
 type ConversationProps = {
   id: string;
@@ -9,18 +10,22 @@ type ConversationProps = {
   lastMessage: string;
 };
 
-function Conversation({
+const Conversation = ({
   id,
   receiverId,
   avatarUrl,
   nikename,
   lastMessage,
-}: ConversationProps) {
-  const { setSelectedConversationId, setReceiverId } = useConversationStore();
+}: ConversationProps) => {
+  const navigate = useNavigate();
+
+  const { setSelectedConversationId, setReceiverId } =
+    useConversationStore.getState();
 
   const handleOnClick = () => {
     setSelectedConversationId(id);
     setReceiverId(receiverId);
+    navigate(`/chats/${id}`);
     console.log("id", id);
     console.log("receiverId", receiverId);
   };
@@ -50,6 +55,6 @@ function Conversation({
       </div>
     </>
   );
-}
+};
 
 export default Conversation;

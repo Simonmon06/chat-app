@@ -4,12 +4,12 @@ import bcryptjs from "bcryptjs";
 import { generateToken } from "../utils/generateTokens.js";
 import { errorHandler } from "../utils/errrorhandler.js";
 import { SignupFormTypes, LoginFormTypes } from "@chat-app/validators";
-import { deriveNickname } from "../utils/userDefaults.js";
 const RESERVED = new Set(["admin", "support", "root", "api", "me", "self"]);
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, username, nickname, password } = req.body as SignupFormTypes;
+    const { email, username, nickname, password } =
+      req.validatedBody as SignupFormTypes;
 
     if (RESERVED.has(String(username).toLowerCase())) {
       res.status(400).json({ error: "Username is reserved" });
@@ -68,7 +68,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { identifier, password } = req.body as LoginFormTypes;
+    const { identifier, password } = req.validatedBody as LoginFormTypes;
     const byEmail = identifier.includes("@");
 
     const foundUser = await prisma.user.findUnique({
