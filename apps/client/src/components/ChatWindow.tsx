@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
@@ -5,19 +7,34 @@ import { WelcomeMessage } from "./WelcomeMessage";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { useGetMessages } from "@/hooks/useGetMessages";
 import { useAuthContext } from "@/context/AuthContext";
+import { usePickFrom } from "@/hooks/z-generic";
+
 export function ChatWindow() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+
   const { authUser: me } = useAuthContext();
 
-  const conversationListItems = useConversationStore(
-    (state) => state.conversationListItems
+  const { conversationListItems, selectedConversationId } = usePickFrom(
+    useConversationStore,
+    "conversationListItems",
+    "selectedConversationId"
   );
-  const selectedConversationId = useConversationStore(
-    (state) => state.selectedConversationId
-  );
+  const { setSelectedConversationId } = useConversationStore.getState();
+
   const { isLoading, error } = useGetMessages();
   const selectedConversation = conversationListItems?.find(
     (c) => c.id === selectedConversationId
   );
+
+  useEffect(() => {
+    if (conversationId && conversationId !== selectedConversationId) {
+      setSelectedConversationId(conversationId);
+    }
+    // 没有参数（/chats），清空选中，回到欢迎页
+    if (!conversationId && selectedConversationId !== null) {
+      setSelectedConversationId(null);
+    }
+  }, [conversationId, selectedConversationId, setSelectedConversationId]);
 
   if (error) {
     return (

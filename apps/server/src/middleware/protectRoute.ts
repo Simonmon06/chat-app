@@ -7,15 +7,6 @@ interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-declare global {
-  namespace Express {
-    export interface Request {
-      user?: {
-        id: string;
-      };
-    }
-  }
-}
 export const protectRoute = async (
   req: Request,
   res: Response,

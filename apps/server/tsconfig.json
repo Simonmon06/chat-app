@@ -12,6 +12,6 @@
     "outDir": "dist"
   },
   // 明确告诉编译器只编译 src 目录下的文件
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/types/**/*.d.ts"],
   "exclude": ["node_modules"]
 }

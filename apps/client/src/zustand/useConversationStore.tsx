@@ -6,8 +6,10 @@ import {
   type ConversationListItemType,
   type MessageType,
 } from "@chat-app/validators";
+import { devtools } from "zustand/middleware";
 // import { persist } from "zustand/middleware";
 // TODO add persist to store conversation info in localstorage
+
 type MessageMap = Record<string, MessageType[]>;
 
 interface ConversationState {
@@ -37,17 +39,31 @@ const initialState: Pick<
   messages: {},
 };
 
-export const useConversationStore = create<ConversationState>((set) => ({
-  ...initialState,
-  setConversationListItems: (listItems) =>
-    set({ conversationListItems: listItems }),
+export const useConversationStore = create<ConversationState>()(
+  devtools(
+    (set, get) => ({
+      ...initialState,
 
-  setReceiverId: (id) => set({ receiverId: id }),
+      setConversationListItems: (listItems) =>
+        set({ conversationListItems: listItems }, false, "conv/setList"),
 
-  setSelectedConversationId: (id) => set({ selectedConversationId: id }),
+      setReceiverId: (id) => set({ receiverId: id }, false, "conv/setReceiver"),
 
-  setMessages: (conversationId, messages) =>
-    set((state) => ({
-      messages: { ...state.messages, [conversationId]: messages },
-    })),
-}));
+      setSelectedConversationId: (id) =>
+        set({ selectedConversationId: id }, false, "conv/select"),
+
+      setMessages: (conversationId, messages) =>
+        set(
+          (state) => ({
+            messages: { ...state.messages, [conversationId]: messages },
+          }),
+          false,
+          "msg/setForConversation"
+        ),
+    }),
+    {
+      name: "conversation-store",
+      enabled: import.meta.env.DEV,
+    }
+  )
+);

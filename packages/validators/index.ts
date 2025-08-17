@@ -5,6 +5,12 @@ import { MAX_MESSAGE_LEN } from "./src/constant.js";
 // ==================================================================
 // PRISMA PAYLOADS & TYPES (for sharing between client and server)
 // ==================================================================
+export const userPublicSelect = {
+  id: true,
+  nickname: true,
+  profilePic: true,
+} as const;
+export const senderSelect = userPublicSelect;
 
 const lastMessageSelect = {
   id: true,
@@ -91,7 +97,13 @@ export const signupSchema = z.object({
   body: signupFormSchema,
 });
 
-export const sendMessageSchema = z.object({
+export const ensureDmConversationSchema = z.object({
+  params: z.object({
+    receiverId: z.cuid("Invalid receiver ID format"),
+  }),
+});
+
+export const startConversationSchema = z.object({
   body: z.object({
     content: z.string().min(1, "Message cannot be empty").max(MAX_MESSAGE_LEN),
   }),
@@ -115,6 +127,32 @@ export const getConversationSchema = z.object({
   }),
 });
 
+export const listUsersSchema = z.object({
+  query: z.object({
+    /**
+     * search by nickname
+     * change to ""
+     *   z.string().trim().transform(s => s || undefined).optional()
+     */
+    q: z.string().trim().optional(),
+
+    /**
+     * 分页大小：
+     * - query 中原始是字符串，这里用 coerce 转为 number
+     */
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+
+    /**
+     * 游标：
+     * - 上一页最后一个用户的 id
+     * - 不传表示第一页
+     */
+    cursor: z.string().trim().optional(),
+
+    includeSelf: z.coerce.boolean().default(false),
+  }),
+});
+export type ListUsersQuery = z.infer<typeof listUsersSchema>["query"];
 //
 export type LoginFormTypes = z.infer<typeof loginFormSchema>;
 export type SignupFormTypes = z.infer<typeof signupFormSchema>;

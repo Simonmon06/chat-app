@@ -1,15 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LogOut, MessageSquare } from "lucide-react";
+import { LogOut, MessageSquare, UsersRound } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
 import useLogout from "@/hooks/useLogout";
+import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
-function ActionSidebar() {
+export function ActionSidebar() {
   const { logout } = useLogout();
   return (
     // justify-between pushes the content aside on the main direction
@@ -22,7 +23,30 @@ function ActionSidebar() {
         </Avatar>
 
         <Button variant="ghost" size="icon" className="bg-accent">
-          <MessageSquare className="h-6 w-6" />
+          <NavLink
+            to="/chats"
+            className={({ isActive }) =>
+              cn(
+                "inline-flex h-10 w-10 items-center justify-center rounded-md",
+                isActive && "bg-primary text-primary-foreground"
+              )
+            }
+          >
+            <MessageSquare className="h-6 w-6" />
+          </NavLink>
+        </Button>
+        <Button variant="ghost" size="icon" className="bg-accent">
+          <NavLink
+            to="/contacts"
+            className={({ isActive }) =>
+              cn(
+                "inline-flex h-10 w-10 items-center justify-center rounded-md",
+                isActive && "bg-primary text-primary-foreground"
+              )
+            }
+          >
+            <UsersRound className="h-6 w-6" />
+          </NavLink>
         </Button>
       </div>
 
@@ -42,5 +66,3 @@ function ActionSidebar() {
     </div>
   );
 }
-
-export default ActionSidebar;
