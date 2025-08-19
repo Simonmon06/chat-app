@@ -3,6 +3,8 @@ import { useSocketContext } from "@/context/SocketContext";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { type MessageType } from "@chat-app/validators";
 import { useAuthContext } from "@/context/AuthContext";
+import notificationSound from "../../public/sounds/notification.mp3";
+
 export const useListenMessages = () => {
   const { socket } = useSocketContext();
   const { authUser } = useAuthContext();
@@ -20,6 +22,9 @@ export const useListenMessages = () => {
       const prev = messages[cid] ?? [];
 
       if (prev.some((m) => m.id === message.id)) return; // double check de-dup
+
+      const notificationAudio = new Audio(notificationSound);
+      notificationAudio.play();
       setMessages(cid, [...prev, message]);
     };
 
