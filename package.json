@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm run --filter \"*\" --if-present build",
+    "build": "pnpm -r build && pnpm -F server prisma generate",
     "dev:server": "pnpm --filter server dev",
     "dev:client": "pnpm --filter client dev",
     "dev:packages": "pnpm --filter \"@chat-app/*\" dev",
-    "dev": "concurrently \"pnpm:dev:*\"",
+    "dev": "pnpm -F client dev & pnpm -F server dev",
+    "start": "pnpm -F server prisma migrate deploy && pnpm -F server start",
     "prisma": "pnpm --filter server exec prisma"
   },
   "devDependencies": {
