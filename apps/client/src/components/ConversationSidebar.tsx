@@ -73,7 +73,7 @@ function ConversationSidebar() {
                 id={item.id}
                 receiverId={receiverId}
                 avatarUrl={avatarUrl}
-                nikename={displayName}
+                nickname={displayName}
                 lastMessage={lastMessage}
               ></Conversation>
             );

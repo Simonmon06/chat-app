@@ -8,8 +8,9 @@ import { useConversationStore } from "@/zustand/useConversationStore";
 import { useGetMessages } from "@/hooks/useGetMessages";
 import { useAuthContext } from "@/context/AuthContext";
 import { usePickFrom } from "@/hooks/z-generic";
-
+import { useConversationRoom } from "@/hooks/useConversationRoom";
 export function ChatWindow() {
+  useConversationRoom();
   const { conversationId } = useParams<{ conversationId: string }>();
 
   const { authUser: me } = useAuthContext();
@@ -30,7 +31,7 @@ export function ChatWindow() {
     if (conversationId && conversationId !== selectedConversationId) {
       setSelectedConversationId(conversationId);
     }
-    // 没有参数（/chats），清空选中，回到欢迎页
+    // remove selectedId and back to welcome message
     if (!conversationId && selectedConversationId !== null) {
       setSelectedConversationId(null);
     }
