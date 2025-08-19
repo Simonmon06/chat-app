@@ -16,6 +16,7 @@ const lastMessageSelect = {
   id: true,
   content: true,
   createdAt: true,
+  conversationId: true,
   sender: {
     select: { id: true, username: true, nickname: true, profilePic: true },
   },

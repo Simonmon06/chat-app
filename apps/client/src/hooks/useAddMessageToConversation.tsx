@@ -34,10 +34,14 @@ export function useAddMessageToConversation() {
           { signal: ctrl.signal }
         );
 
-        // 追加到当前会话消息列表
+        // add to current message
         const prev =
           useConversationStore.getState().messages[conversationId] ?? [];
-        setMessages(conversationId, [...prev, data]);
+
+        // remove duplicate
+        if (!prev.some((m) => m.id === data.id)) {
+          setMessages(conversationId, [...prev, data]);
+        }
 
         return data;
       } catch (err: any) {

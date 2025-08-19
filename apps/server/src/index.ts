@@ -4,8 +4,7 @@ import messageRoutes from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
 import { config } from "./config.js";
 import usersRoutes from "./routes/users.route.js";
-const app = express();
-
+import { app, server } from "./socket/socket.js";
 const PORT = 3001;
 
 // parsing json
@@ -15,6 +14,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", usersRoutes);
 
-app.listen(PORT, () => {
-  console.log(`😊😊Server is running at http://localhost:${PORT}/`);
+server.listen(PORT, () => {
+  console.log(`😊😊Server is running at http://localhost:${PORT}`);
 });
