@@ -41,7 +41,7 @@ const initialState: Pick<
 
 export const useConversationStore = create<ConversationState>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       ...initialState,
 
       setConversationListItems: (listItems) =>

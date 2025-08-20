@@ -11,11 +11,15 @@ const app = express();
 
 const server = http.createServer(app);
 
+const allowed = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim());
+
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: allowed,
     credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   },
 });
 

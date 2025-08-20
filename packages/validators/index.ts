@@ -1,4 +1,4 @@
-import { Prisma, Message, User, Role } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { MAX_MESSAGE_LEN } from "./src/constant.js";
 
@@ -10,9 +10,10 @@ export const userPublicSelect = {
   nickname: true,
   profilePic: true,
 } as const;
+
 export const senderSelect = userPublicSelect;
 
-const lastMessageSelect = {
+export const lastMessageSelect = {
   id: true,
   content: true,
   createdAt: true,
@@ -20,46 +21,41 @@ const lastMessageSelect = {
   sender: {
     select: { id: true, username: true, nickname: true, profilePic: true },
   },
-} satisfies Prisma.MessageSelect;
+} as const;
 
-export const conversationListItemPayload =
-  Prisma.validator<Prisma.ConversationDefaultArgs>()({
+export const conversationListItemSelect = {
+  id: true,
+  isGroup: true,
+  dmKey: true,
+  updatedAt: true,
+  participants: {
     select: {
-      id: true,
-      isGroup: true,
-      dmKey: true,
-      updatedAt: true,
-      participants: {
+      role: true,
+      joinedAt: true,
+      user: {
         select: {
-          role: true,
-          joinedAt: true,
-          user: {
-            select: {
-              id: true,
-              username: true,
-              nickname: true,
-              profilePic: true,
-            },
-          },
+          id: true,
+          username: true,
+          nickname: true,
+          profilePic: true,
         },
       },
-      messages: {
-        take: 1,
-        orderBy: { createdAt: "desc" },
-        select: lastMessageSelect,
-      },
     },
-  });
+  },
+  messages: {
+    take: 1,
+    orderBy: { createdAt: "desc" as const },
+    select: lastMessageSelect,
+  },
+} as const;
 
-export type ConversationListItemType = Prisma.ConversationGetPayload<
-  typeof conversationListItemPayload
->;
+export type ConversationListItemType = Prisma.ConversationGetPayload<{
+  select: typeof conversationListItemSelect;
+}>;
 
-export const messagePayload = Prisma.validator<Prisma.MessageDefaultArgs>()({
-  select: lastMessageSelect,
-});
-export type MessageType = Prisma.MessageGetPayload<typeof messagePayload>;
-
+export type MessageType = Prisma.MessageGetPayload<{
+  select: typeof lastMessageSelect;
+}>;
 // ==================================================================
 // ZOD SCHEMAS (for request validation)
 // ==================================================================
