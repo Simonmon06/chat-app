@@ -9,17 +9,6 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-
-    // 关键：为 monorepo 内的包和文件夹定义路径别名 (path aliases)
-    "baseUrl": ".",
-    "paths": {
-      "@prisma/client": ["./node_modules/.prisma/client"],
-      // 可以用 import ... from '@chat-app/validators'
-      // "@chat-app/validators": ["packages/validators/index.ts"],
-      "@chat-app/validators": ["packages/validators/dist"],
-
-      // 可以用 import ... from '@/components/...'
-      "@/*": ["apps/client/src/*"]
-    }
+    "baseUrl": "."
   }
 }

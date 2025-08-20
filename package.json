@@ -3,17 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm -r build && pnpm -F server prisma generate",
+    "build": "pnpm -r build",
     "dev:server": "pnpm --filter server dev",
     "dev:client": "pnpm --filter client dev",
     "dev:packages": "pnpm --filter \"@chat-app/*\" dev",
     "dev": "pnpm -F client dev & pnpm -F server dev",
-    "start": "pnpm -F server prisma migrate deploy && pnpm -F server start",
+    "start:server": "pnpm -F server start",
     "prisma": "pnpm --filter server exec prisma"
   },
   "devDependencies": {
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "concurrently": "^9.2.0"
-  }
+  },
+  "packageManager": "pnpm@10.13.1"
 }

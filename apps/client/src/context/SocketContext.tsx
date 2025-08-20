@@ -15,7 +15,12 @@ interface ISocketContext {
 }
 const SocketContext = createContext<ISocketContext | undefined>(undefined);
 
-const socketURL = import.meta.env.DEV ? "http://localhost:3001" : "/";
+const socketURL =
+  import.meta.env.VITE_SOCKET_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  window.location.origin;
+
+// const socketURL = import.meta.env.DEV ? "http://localhost:3001" : "/";
 
 export const SocketContextProvider = ({
   children,

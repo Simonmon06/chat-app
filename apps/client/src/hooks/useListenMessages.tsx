@@ -3,7 +3,7 @@ import { useSocketContext } from "@/context/SocketContext";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { type MessageType } from "@chat-app/validators";
 import { useAuthContext } from "@/context/AuthContext";
-import notificationSound from "../../public/sounds/notification.mp3";
+import notificationSound from "../assets/sounds/notification.mp3";
 
 export const useListenMessages = () => {
   const { socket } = useSocketContext();
