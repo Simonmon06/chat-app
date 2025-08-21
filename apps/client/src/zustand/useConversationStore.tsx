@@ -27,6 +27,8 @@ interface ConversationState {
   setSelectedConversationId: (id: string | null) => void;
 
   setMessages: (conversationId: string, messages: MessageType[]) => void;
+
+  upsertConversationListItem: (item: ConversationListItemType) => void;
 }
 
 const initialState: Pick<
@@ -59,6 +61,38 @@ export const useConversationStore = create<ConversationState>()(
           }),
           false,
           "msg/setForConversation"
+        ),
+
+      upsertConversationListItem: (incoming) =>
+        set(
+          (state) => {
+            const list = state.conversationListItems ?? [];
+            const idx = list.findIndex((x) => x.id === incoming.id);
+            let next: ConversationListItemType[];
+
+            if (idx >= 0) {
+              // merge & move to top
+              const merged: ConversationListItemType = {
+                ...list[idx],
+                ...incoming,
+                // 以服务端最新 last message/updatedAt 为准
+                messages: incoming.messages?.length
+                  ? incoming.messages
+                  : list[idx].messages,
+                updatedAt: incoming.updatedAt ?? list[idx].updatedAt,
+                participants: incoming.participants?.length
+                  ? incoming.participants
+                  : list[idx].participants,
+              };
+              next = [merged, ...list.slice(0, idx), ...list.slice(idx + 1)];
+            } else {
+              next = [incoming, ...list];
+            }
+
+            return { conversationListItems: next };
+          },
+          false,
+          "conv/upsertListItem"
         ),
     }),
     {

@@ -116,17 +116,27 @@ export const addMessageToConversation = async (req: Request, res: Response) => {
       message: newMessage,
     });
 
-    // maybe later 同时给双方的 user-room 推一个 upsert，让会话列表置顶/更新摘要
-    // const participantIds = await prisma.conversationParticipant.findMany({
-    //   where: { conversationId },
-    //   select: { userId: true },
-    // });
-    // await Promise.all(
-    //   participantIds.map(async ({ userId }) => {
-    //     const item = await selectConversationListItem(conversationId, userId);
-    //     io.to(`user:${userId}`).emit("conversation:upsert", { item });
-    //   })
-    // );
+    // 同时给双方的 user-room 推一个 upsert，让会话列表置顶/更新摘要
+    const participantIds = await prisma.conversationParticipant.findMany({
+      where: { conversationId },
+      select: { userId: true },
+    });
+    await Promise.all(
+      participantIds.map(async ({ userId }) => {
+        const item = await selectConversationListItem(conversationId, userId);
+        io.to(`user:${userId}`).emit("conversation:upsert", { item });
+      })
+    );
+
+    for (const { userId } of participantIds) {
+      if (userId === senderId) continue;
+      io.to(`user:${userId}`).emit("notify:ring", {
+        conversationId,
+        messageId: newMessage.id,
+        senderId,
+        createdAt: newMessage.createdAt,
+      });
+    }
 
     return res.status(201).json(newMessage);
   } catch (err) {

@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
         return;
       }
 
-      // （可选 authZ）建议在这里用 Prisma 校验 membership
+      // authZ: user prisma to check membership
       const member = prisma.conversationParticipant.findUnique({
         where: { conversationId_userId: { conversationId, userId } },
       });
