@@ -5,6 +5,8 @@ import { useContactsStore } from "@/zustand/useContactsStore";
 import { useEnsureConversation } from "@/hooks/useEnsureConversation";
 import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import defaultAvatar from "../assets/avatars/defaultAvatar.svg";
+
 function initials(name: string) {
   return name.trim().slice(0, 2).toUpperCase();
 }
@@ -29,7 +31,7 @@ export function ContactDetailsPane() {
   }
 
   const onStart = async () => {
-    // 这里示例：发送一个简短开场白，创建会话
+    // 这里示例：发送一个简短开场白，创建conv
     setSending(true);
     const item = await ensureConversation(selectedContact.id);
 
@@ -40,7 +42,7 @@ export function ContactDetailsPane() {
   return (
     <div className="h-full p-6 flex flex-col items-center gap-4">
       <Avatar className="h-20 w-20">
-        <AvatarImage src={selectedContact.profilePic ?? undefined} />
+        <AvatarImage src={selectedContact.profilePic ?? defaultAvatar} />
         <AvatarFallback className="text-xl">
           {initials(selectedContact.nickname || "U")}
         </AvatarFallback>

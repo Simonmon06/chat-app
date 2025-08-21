@@ -9,8 +9,11 @@ import {
 import useLogout from "@/hooks/useLogout";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuthContext } from "@/context/AuthContext";
+import defaultAvatar from "../assets/avatars/defaultAvatar.svg";
 
 export function ActionSidebar() {
+  const { authUser } = useAuthContext();
   const { logout } = useLogout();
   return (
     // justify-between pushes the content aside on the main direction
@@ -18,7 +21,10 @@ export function ActionSidebar() {
       <div className="flex flex-col items-center gap-4">
         {/* 1. User avatar */}
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+          <AvatarImage
+            src={authUser?.profilePic || defaultAvatar}
+            alt="User Avatar"
+          />
           <AvatarFallback>YOU</AvatarFallback>
         </Avatar>
 
