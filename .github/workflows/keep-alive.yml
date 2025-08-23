@@ -2,7 +2,7 @@ name: keep-alive
 
 on:
   schedule:
-    - cron: "*/14 * * * *" # per 14 mins
+    - cron: "*/10 * * * *" # per mins
   workflow_dispatch: # allow trigger manually
 
 permissions: { contents: read }
