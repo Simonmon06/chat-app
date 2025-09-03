@@ -1,10 +1,12 @@
 name: keep-alive
 
-on:
-  schedule:
-    - cron: "*/10 * * * *" # per mins
-  workflow_dispatch: # allow trigger manually
+# on:
+#   schedule:
+#     - cron: "*/10 * * * *" # per mins
+#   workflow_dispatch: # allow trigger manually
 
+on:
+  workflow_dispatch:
 permissions: { contents: read }
 
 concurrency:
