@@ -94,6 +94,10 @@ function LoginPage() {
               <Button variant="link" asChild className="p-0 h-auto font-normal">
                 <Link to="/signup">{"Don't"} have an account? Sign up</Link>
               </Button>
+              <div>
+                For testing, use test1@gmail.com or test2@gmailc.om and
+                password: test123 to login
+              </div>
             </div>
           </form>
         </Form>
