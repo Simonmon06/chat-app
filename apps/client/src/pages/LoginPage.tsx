@@ -20,7 +20,8 @@ function LoginPage() {
   const { login, isLoading, error } = useLogin();
 
   const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/google";
+    const base = import.meta.env.VITE_API_BASE_URL || "";
+    window.location.href = `${base}/api/auth/google`;
   };
 
   const form = useForm<LoginFormTypes>({
