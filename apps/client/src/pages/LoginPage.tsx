@@ -109,7 +109,7 @@ function LoginPage() {
                 <Link to="/signup">{"Don't"} have an account? Sign up</Link>
               </Button>
               <div>
-                For testing, use test1@gmail.com or test2@gmailc.om and
+                For testing, use test1@gmail.com or test2@gmail.com and
                 password: test123 to login
               </div>
             </div>
