@@ -23,15 +23,22 @@ enum Role {
   admin
 }
 
+enum AuthProvider {
+  password
+  google
+}
+
 model User {
-  id         String   @id @default(cuid())
-  email      String   @unique @db.Citext // 大小写不敏感
-  username   String   @unique @db.Citext
+  id         String       @id @default(cuid())
+  email      String       @unique @db.Citext // 大小写不敏感
+  username   String       @unique @db.Citext
+  googleId   String?      @unique
+  provider   AuthProvider @default(password)
   nickname   String?
-  password   String
+  password   String?
   profilePic String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   participants ConversationParticipant[]
   messages     Message[]

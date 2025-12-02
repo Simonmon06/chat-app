@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useConversationStore } from "@/zustand/useConversationStore";
 import { usePickFrom } from "@/hooks/z-generic";
 import { useAuthContext } from "@/context/AuthContext";
+import { avatarUrlForUser } from "@/utils/avatar";
 
 function ConversationSidebar() {
   const { authUser: me } = useAuthContext();
@@ -62,7 +63,9 @@ function ConversationSidebar() {
               ? "Saved messages"
               : displayUser?.nickname ?? displayUser?.username ?? "Unknown";
 
-            const avatarUrl = displayUser?.profilePic ?? "";
+            const avatarUrl = displayUser?.id
+              ? avatarUrlForUser(displayUser.id)
+              : "";
 
             const receiverId = displayUser?.id ?? me?.id ?? "";
             const lastMessage = item.messages?.[0]?.content ?? "";

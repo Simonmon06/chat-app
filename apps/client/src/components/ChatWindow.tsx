@@ -9,6 +9,7 @@ import { useGetMessages } from "@/hooks/useGetMessages";
 import { useAuthContext } from "@/context/AuthContext";
 import { usePickFrom } from "@/hooks/z-generic";
 import { useConversationRoom } from "@/hooks/useConversationRoom";
+import { avatarUrlForUser } from "@/utils/avatar";
 export function ChatWindow() {
   useConversationRoom();
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -54,7 +55,7 @@ export function ChatWindow() {
   const displayName = isSelfDM
     ? "Saved messages"
     : displayUser?.nickname ?? displayUser?.username ?? "Unknown";
-  const avatarUrl = displayUser?.profilePic ?? "";
+  const avatarUrl = displayUser?.id ? avatarUrlForUser(displayUser.id) : "";
 
   return (
     <div className="flex flex-col h-full">

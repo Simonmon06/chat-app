@@ -4,14 +4,24 @@ import bcryptjs from "bcryptjs";
 import { generateToken } from "../utils/generateTokens.js";
 import { errorHandler } from "../utils/errrorhandler.js";
 import { SignupFormTypes, LoginFormTypes } from "@chat-app/validators";
-const RESERVED = new Set(["admin", "support", "root", "api", "me", "self"]);
+import {
+  GOOGLE_SCOPES,
+  googleClient,
+  verifyGoogleIdToken,
+} from "../utils/googleClient.js";
+import {
+  findAvailableUsername,
+  isReservedUsername,
+} from "../utils/username.js";
+import { deriveNickname, makeAvatarUrl } from "../utils/userDefaults.js";
+import { config } from "../config.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, username, nickname, password } =
       req.validatedBody as SignupFormTypes;
 
-    if (RESERVED.has(String(username).toLowerCase())) {
+    if (isReservedUsername(username)) {
       res.status(400).json({ error: "Username is reserved" });
       return;
     }
@@ -80,10 +90,18 @@ export const login = async (req: Request, res: Response) => {
         nickname: true,
         profilePic: true,
         password: true,
+        provider: true,
       },
     });
     if (!foundUser) {
       res.status(400).json({ error: "Invalid credentials" });
+      return;
+    }
+
+    if (!foundUser.password) {
+      res.status(400).json({
+        error: "Account uses Google sign-in. Please continue with Google.",
+      });
       return;
     }
 
@@ -120,6 +138,124 @@ export const logout = async (req: Request, res: Response) => {
     errorHandler(err, res);
   }
 };
+
+export const googleAuth = async (_req: Request, res: Response) => {
+  try {
+    const url = googleClient.generateAuthUrl({
+      scope: GOOGLE_SCOPES,
+      access_type: "offline",
+      prompt: "select_account",
+    });
+    res.redirect(url);
+  } catch (err: unknown) {
+    errorHandler(err, res);
+  }
+};
+
+export const googleCallback = async (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string | undefined;
+    if (!code) {
+      res.status(400).json({ error: "Missing authorization code" });
+      return;
+    }
+
+    const { tokens } = await googleClient.getToken({
+      code,
+      redirect_uri: config.GOOGLE_REDIRECT_URI,
+    });
+
+    if (!tokens.id_token) {
+      res.status(400).json({ error: "Missing ID token from Google" });
+      return;
+    }
+
+    const payload = await verifyGoogleIdToken(tokens.id_token);
+    const { sub, email, name, picture, email_verified } = payload;
+
+    if (!email) {
+      res
+        .status(400)
+        .json({ error: "Google account is missing an email address" });
+      return;
+    }
+
+    if (email_verified === false) {
+      res.status(400).json({ error: "Google email is not verified" });
+      return;
+    }
+
+    const safeSelect = {
+      id: true,
+      email: true,
+      username: true,
+      nickname: true,
+      profilePic: true,
+    } as const;
+
+    let user =
+      (await prisma.user.findUnique({
+        where: { googleId: sub },
+        select: safeSelect,
+      })) || null;
+
+    if (!user) {
+      const existingByEmail = await prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          username: true,
+          nickname: true,
+          profilePic: true,
+          provider: true,
+          password: true,
+          googleId: true,
+          email: true,
+        },
+      });
+
+      if (existingByEmail) {
+        user = await prisma.user.update({
+          where: { id: existingByEmail.id },
+          data: {
+            googleId: sub,
+            provider: existingByEmail.provider ?? "password",
+          },
+          select: safeSelect,
+        });
+      } else {
+        const username = await findAvailableUsername({ email, name });
+        const nickname = name ?? deriveNickname({ email, username });
+        const profilePic = picture ?? makeAvatarUrl(username);
+
+        user = await prisma.user.create({
+          data: {
+            email,
+            username,
+            nickname,
+            profilePic,
+            googleId: sub,
+            provider: "google",
+          },
+          select: safeSelect,
+        });
+      }
+    }
+
+    generateToken(user.id, res);
+
+    const redirectTarget =
+      config.CLIENT_URL ??
+      process.env.CORS_ORIGIN?.split(",")[0]?.trim() ??
+      "http://localhost:5173";
+
+    res.redirect(redirectTarget);
+    return;
+  } catch (err: unknown) {
+    errorHandler(err, res);
+  }
+};
+
 export const getMe = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({

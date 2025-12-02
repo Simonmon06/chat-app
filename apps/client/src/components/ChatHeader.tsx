@@ -10,7 +10,13 @@ export function ChatHeader({ username, avatarUrl }: ChatHeaderProps) {
   return (
     <div className="flex items-center gap-4 p-4 border-b">
       <Avatar>
-        <AvatarImage src={avatarUrl} />
+        <AvatarImage
+          src={avatarUrl}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.src = "";
+          }}
+        />
         <AvatarFallback>{username.substring(0, 2)}</AvatarFallback>
       </Avatar>
       <h2 className="text-lg font-semibold">{username}</h2>

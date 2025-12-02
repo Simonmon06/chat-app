@@ -19,6 +19,10 @@ import { Input } from "@/components/ui/input";
 function LoginPage() {
   const { login, isLoading, error } = useLogin();
 
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
+
   const form = useForm<LoginFormTypes>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -89,6 +93,15 @@ function LoginPage() {
                 ) : (
                   "Login"
                 )}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleLogin}
+              >
+                Continue with Google
               </Button>
 
               <Button variant="link" asChild className="p-0 h-auto font-normal">

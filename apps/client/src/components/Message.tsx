@@ -3,6 +3,7 @@ import { type MessageType } from "@chat-app/validators";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { avatarUrlForUser } from "@/utils/avatar";
 
 type MessageProps = {
   message: MessageType;
@@ -29,7 +30,13 @@ export function Message({ message }: MessageProps) {
 
   const avatar = (
     <Avatar>
-      <AvatarImage src={message.sender.profilePic ?? undefined} />
+      <AvatarImage
+        src={avatarUrlForUser(message.sender.id)}
+        referrerPolicy="no-referrer"
+        onError={(e) => {
+          e.currentTarget.src = "";
+        }}
+      />
       <AvatarFallback>
         {message.sender.nickname?.substring(0, 2)}
       </AvatarFallback>

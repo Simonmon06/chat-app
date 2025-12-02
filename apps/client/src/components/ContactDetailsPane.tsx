@@ -6,6 +6,7 @@ import { useEnsureConversation } from "@/hooks/useEnsureConversation";
 import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import defaultAvatar from "../assets/avatars/defaultAvatar.svg";
+import { avatarUrlForUser } from "@/utils/avatar";
 
 function initials(name: string) {
   return name.trim().slice(0, 2).toUpperCase();
@@ -42,7 +43,13 @@ export function ContactDetailsPane() {
   return (
     <div className="h-full p-6 flex flex-col items-center gap-4">
       <Avatar className="h-20 w-20">
-        <AvatarImage src={selectedContact.profilePic ?? defaultAvatar} />
+        <AvatarImage
+          src={avatarUrlForUser(selectedContact.id) || defaultAvatar}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.src = defaultAvatar;
+          }}
+        />
         <AvatarFallback className="text-xl">
           {initials(selectedContact.nickname || "U")}
         </AvatarFallback>

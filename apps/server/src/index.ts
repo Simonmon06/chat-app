@@ -4,6 +4,7 @@ import messageRoutes from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
 import { config } from "./config.js";
 import usersRoutes from "./routes/users.route.js";
+import avatarRoutes from "./routes/avatar.route.js";
 import { app, server } from "./socket/socket.js";
 import cors from "cors";
 const PORT = Number(process.env.PORT ?? 3001);
@@ -24,6 +25,7 @@ app.get("/health-check", (_req, res) => res.status(200).json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/avatars", avatarRoutes);
 
 server.listen(PORT, () => {
   console.log(

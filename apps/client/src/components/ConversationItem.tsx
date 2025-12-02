@@ -59,7 +59,13 @@ const Conversation = ({
         {/* avatar */}
         <div className="relative">
           <Avatar className="w-12 h-12">
-            <AvatarImage src={avatarUrl} />
+            <AvatarImage
+              src={avatarUrl}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.src = "";
+              }}
+            />
             <AvatarFallback>{nickname.substring(0, 2)}</AvatarFallback>
           </Avatar>
 

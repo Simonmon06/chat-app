@@ -11,10 +11,13 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/context/AuthContext";
 import defaultAvatar from "../assets/avatars/defaultAvatar.svg";
+import { avatarUrlForUser } from "@/utils/avatar";
 
 export function ActionSidebar() {
   const { authUser } = useAuthContext();
   const { logout } = useLogout();
+  const avatarSrc = avatarUrlForUser(authUser?.id);
+
   return (
     // justify-between pushes the content aside on the main direction
     <div className="flex flex-col h-full justify-between items-center p-2 bg-card rounded-lg border">
@@ -22,10 +25,16 @@ export function ActionSidebar() {
         {/* 1. User avatar */}
         <Avatar>
           <AvatarImage
-            src={authUser?.profilePic || defaultAvatar}
+            // Proxy through our domain to keep Google avatars stable; fallback to local.
+            src={avatarSrc || defaultAvatar}
             alt="User Avatar"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.src = defaultAvatar;
+            }}
           />
-          <AvatarFallback>YOU</AvatarFallback>
+          {/* Delay fallback to avoid a brief flash while the proxied avatar loads */}
+          <AvatarFallback delayMs={2000}>YOU</AvatarFallback>
         </Avatar>
 
         <Button variant="ghost" size="icon" className="bg-accent">
